@@ -1,6 +1,6 @@
 services:
       ipmqtt:
-        image: quarkus/ipmqtt-native
+        image: quarkus/ipmqtt-legacy-jar
         container_name: ipmqtt
         volumes:
           - /home/olivier/quarkus/ipMqtt/config:/work/config
