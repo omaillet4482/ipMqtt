@@ -1,0 +1,14 @@
+quarkus:
+  container-image:
+    name: "ipmqtt"
+  docker:
+    buildx:
+      platform: "linux/amd64"
+
+ipMqtt:
+  parseur:
+    ligne1: "for (?<name>[A-Za-z0-9.-]+) \\((?<ip>[0-9.]+)\\)"
+    ligne3: "Address: (?<mac>[A-F0-9:]+)"
+
+  ping:
+    delay: "15s"

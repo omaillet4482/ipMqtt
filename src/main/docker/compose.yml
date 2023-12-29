@@ -1,0 +1,11 @@
+services:
+      ipmqtt:
+        image: quarkus/ipmqtt-native
+        container_name: ipmqtt
+        volumes:
+          - /home/olivier/quarkus/ipMqtt/config:/work/config
+        ports:
+          - "6060:8080"
+ 
+
+
