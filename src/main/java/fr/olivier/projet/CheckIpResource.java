@@ -1,5 +1,6 @@
 package fr.olivier.projet;
 
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,6 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import fr.olivier.projet.bo.NmapBo;
+import fr.olivier.projet.mqtt.DomoticMqttService;
 import fr.olivier.projet.repository.IpRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -30,6 +32,9 @@ public class CheckIpResource {
 
     @Inject
     private IpRepository ipRepository;
+
+    @Inject
+    private DomoticMqttService domoticMqttService;
     
 
     @Inject
@@ -51,6 +56,28 @@ public class CheckIpResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listIp(){
         return Response.ok(ipRepository.findAll()).build();
+    }
+
+     @GET
+    @Path("/mqtt/{topic}/{message}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String testmessage(String topic, String message){
+        domoticMqttService.sendMessage(topic, message);
+        return "send "+ message;
+    }
+
+     @GET
+    @Path("/config/{mac}")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String testmessage(String mac){
+        Optional<NmapBo> equipe = ipRepository.find(mac);
+
+        equipe.ifPresent( nmap -> {
+             domoticMqttService.sendMessageConfig(nmap);
+
+        });
+       
+        return "send "+ mac;
     }
     /**
      * Parsing des flux du nmap

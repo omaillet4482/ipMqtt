@@ -1,3 +1,27 @@
+
+quarkus:
+  log:
+    level: "INFO"
+    category:
+      - io.smallrye:
+          level: "DEBUG"
+      - org.eclipse:
+          level: "DEBUG"
+
+      
+
+mp:
+  messaging:
+    outgoing:
+      out-topic:
+        connector: "smallrye-mqtt"
+        host: "192.168.1.150"
+        port: "1883"
+        topic: "ipmnam"
+        auto-generated-client-id: "true"
+        merge: "true"
+
+
 ipMqtt:
   ping:
     mac:
