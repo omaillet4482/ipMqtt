@@ -7,13 +7,20 @@ public class ConfigPayload {
     
     String name;
 
-    String value_template; 
 
     String state_topic;
+
+    String command_topic;
 
     DevicePayload device;
 
     String unique_id;
+
+    String payload_off = "0";
+
+    String payload_on = "1";
+
+    String value_template = "{{ value_json.value }}";
 
     public String getName() {
         return name;
@@ -53,6 +60,30 @@ public class ConfigPayload {
 
     public void setUnique_id(String unique_id) {
         this.unique_id = unique_id;
+    }
+
+    public String getPayload_off() {
+        return payload_off;
+    }
+
+    public void setPayload_off(String payload_off) {
+        this.payload_off = payload_off;
+    }
+
+    public String getPayload_on() {
+        return payload_on;
+    }
+
+    public void setPayload_on(String payload_on) {
+        this.payload_on = payload_on;
+    }
+
+    public String getCommand_topic() {
+        return command_topic;
+    }
+
+    public void setCommand_topic(String command_topic) {
+        this.command_topic = command_topic;
     }
 
     

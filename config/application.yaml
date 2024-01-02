@@ -3,10 +3,10 @@ quarkus:
   log:
     level: "INFO"
     category:
-      - io.smallrye:
-          level: "DEBUG"
+      - fr.olivier:
+        level: "DEBUG"
       - org.eclipse:
-          level: "DEBUG"
+        level: "INFO"
 
       
 
