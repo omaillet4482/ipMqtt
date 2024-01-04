@@ -57,7 +57,7 @@ public class DomoticMqttService {
         LOG.info(json);
 
         Mqtt5BlockingClient client = getClient();
-
+        client.connect();
         client.publishWith().topic(topic).qos(MqttQos.AT_LEAST_ONCE).payload(json.getBytes()).send();
         client.disconnect();
     }
