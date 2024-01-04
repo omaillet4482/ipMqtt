@@ -1,8 +1,8 @@
 package fr.olivier.projet.mqtt;
 
-
 import java.util.UUID;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import com.hivemq.client.mqtt.datatypes.MqttQos;
@@ -15,52 +15,55 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
-@ApplicationScoped  
+@ApplicationScoped
 public class DomoticMqttService {
-    
-     private static final Logger LOG = Logger.getLogger(DomoticMqttService.class);
-  
+
+    private static final Logger LOG = Logger.getLogger(DomoticMqttService.class);
+
+    @ConfigProperty(name = "ipMqtt.mqtt.host")
+    public String mqttHost;
+
+    @ConfigProperty(name = "ipMqtt.mqtt.port", defaultValue = "1883")
+    public int mqttPort;
 
     public void sendMessage(NmapBo nmapBo, String value) {
-        
-        String topicCmd = 
-        "ipmqtt/"+nmapBo.getName()+"_switch/switch_binary/endpoint_0/currentValue";
 
+        String topicCmd = "ipmqtt/" + nmapBo.getName() + "_switch/switch_binary/endpoint_0/currentValue";
 
-         Mqtt5BlockingClient client = Mqtt5Client.builder()
-        .identifier(UUID.randomUUID().toString())
-        .serverHost("192.168.1.150")
-        .buildBlocking();
+        Mqtt5BlockingClient client = getClient();
 
-client.connect();
-client.publishWith().topic(topicCmd).qos(MqttQos.AT_LEAST_ONCE).payload(value.getBytes()).send();
-client.disconnect();   
-        
+        client.connect();
+        client.publishWith().topic(topicCmd).qos(MqttQos.AT_LEAST_ONCE).payload(value.getBytes()).send();
+        client.disconnect();
+
+    }
+
+    private Mqtt5BlockingClient getClient() {
+        Mqtt5BlockingClient client = Mqtt5Client.builder()
+                .identifier(UUID.randomUUID().toString())
+                .serverHost(mqttHost)
+                .serverPort(mqttPort)
+                .buildBlocking();
+        return client;
     }
 
     public void sendMessageConfig(NmapBo nmapBo) {
 
-      
+        String topic = "homeassistant/switch/" + nmapBo.getName()
+                + "/switch/config";
 
-         String topic = "homeassistant/switch/"+nmapBo.getName()
-            +"/switch/config";
+        Jsonb builder = JsonbBuilder.create();
+        String json = builder.toJson(builderFromNmap(nmapBo));
+        LOG.info(json);
 
-            Jsonb builder = JsonbBuilder.create();
-            String json = builder.toJson(builderFromNmap(nmapBo));
-            LOG.info(json);
+        Mqtt5BlockingClient client = getClient();
 
-           Mqtt5BlockingClient client = Mqtt5Client.builder()
-        .identifier(UUID.randomUUID().toString())
-        .serverHost("192.168.1.150")
-        .buildBlocking();
-
-client.connect();
-client.publishWith().topic(topic).qos(MqttQos.AT_LEAST_ONCE).payload(json.getBytes()).send();
-client.disconnect();     
+        client.publishWith().topic(topic).qos(MqttQos.AT_LEAST_ONCE).payload(json.getBytes()).send();
+        client.disconnect();
     }
 
     protected ConfigPayload builderFromNmap(NmapBo nmapBo) {
-        String topic = "ipmqtt/"+nmapBo.getName()+"_switch/switch_binary/endpoint_0/currentValue";
+        String topic = "ipmqtt/" + nmapBo.getName() + "_switch/switch_binary/endpoint_0/currentValue";
         ConfigPayload configMessage = new ConfigPayload();
         configMessage.setName(nmapBo.getName());
         configMessage.setUnique_id(nmapBo.getMac());
@@ -73,6 +76,5 @@ client.disconnect();
 
         return configMessage;
     }
-
 
 }
