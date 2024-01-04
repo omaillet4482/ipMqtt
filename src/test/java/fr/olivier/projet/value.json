@@ -1,0 +1,18 @@
+{
+    "payload_off": false,
+    "payload_on": true,
+    "value_template": "{{ value_json.value }}",
+    "command_topic": "zwave/VOLET_SALON/switch_binary/endpoint_0/targetValue/set",
+    "state_topic": "zwave/VOLET_SALON/switch_binary/endpoint_0/currentValue",
+    "device": {
+        "identifiers": [
+            "zwavejs2mqtt_0xfa8b213d_node6"
+        ],
+        "manufacturer": "Fibargroup",
+        "model": "Roller Shutter 2 (FGR222)",
+        "name": "VOLET_SALON",
+        "sw_version": "25.25"
+    },
+    "name": "VOLET_SALON_switch",
+    "unique_id": "zwavejs2mqtt_0xfa8b213d_6-37-0-currentValue"
+}

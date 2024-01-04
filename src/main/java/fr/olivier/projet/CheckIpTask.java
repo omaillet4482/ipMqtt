@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import fr.olivier.projet.mqtt.DomoticMqttService;
 import fr.olivier.projet.repository.IpRepository;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.Scheduled.ConcurrentExecution;
@@ -26,13 +27,23 @@ import jakarta.inject.Inject;
     @ConfigProperty(name = "ipMqtt.ping.mac")
     private List<String> listeMac;
 
+    @Inject
+    private DomoticMqttService domoticMqttService;
+
     @Scheduled(every="{ipMqtt.ping.delay}", concurrentExecution = ConcurrentExecution.SKIP) 
     void taskPing() {
         listeMac.stream().forEach(mac -> {
             ipRepository.find(mac).ifPresent(
                     nmapBo -> {
                         LOG.info(" Ping " + nmapBo.getName() + " ip:" + nmapBo.getIp());
-                        LOG.info(" test ping  " + pingAdress(nmapBo.getIp()));
+                        boolean pingb = pingAdress(nmapBo.getIp());
+                        LOG.info(" test ping  " + pingb);
+
+                        if (pingb) {
+                            domoticMqttService.sendMessage(nmapBo, "on");
+                        } else {
+                            domoticMqttService.sendMessage(nmapBo, "false");
+                        }
                     }
 
             );

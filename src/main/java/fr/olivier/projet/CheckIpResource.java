@@ -1,5 +1,6 @@
 package fr.olivier.projet;
 
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,6 +9,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
 import fr.olivier.projet.bo.NmapBo;
+import fr.olivier.projet.mqtt.DomoticMqttService;
 import fr.olivier.projet.repository.IpRepository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -28,8 +30,14 @@ public class CheckIpResource {
 
     private Pattern ligneTrois;
 
+    @ConfigProperty(name = "ipMqtt.ping.mac")
+    private List<String> listeMac;
+
     @Inject
     private IpRepository ipRepository;
+
+    @Inject
+    private DomoticMqttService domoticMqttService;
     
 
     @Inject
@@ -51,6 +59,30 @@ public class CheckIpResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listIp(){
         return Response.ok(ipRepository.findAll()).build();
+    }
+
+
+     @GET
+    @Path("/config")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String testmessage(){
+        
+        StringBuilder resultBuilder = new StringBuilder();
+
+        listeMac.stream().forEach(mac -> {
+            ipRepository.find(mac).ifPresent(
+                    nmapBo -> {
+                          domoticMqttService.sendMessage(nmapBo, "0");
+                          domoticMqttService.sendMessageConfig(nmapBo);
+                          resultBuilder.append(" config "+nmapBo.getName()+"\n");
+                    }
+
+            );
+        });
+
+        
+       
+        return resultBuilder.toString();
     }
     /**
      * Parsing des flux du nmap

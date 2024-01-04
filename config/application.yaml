@@ -1,4 +1,17 @@
+
+quarkus:
+  log:
+    level: "INFO"
+    category:
+      - "fr.olivier":
+        level: "DEBUG"
+      - "org.eclipse":
+        level: "INFO"
+
 ipMqtt:
+  mqtt: 
+    host: "192.168.1.150"
+    port: "1883" 
   ping:
     mac:
       - "F2:22:45:FF:E3:27"
