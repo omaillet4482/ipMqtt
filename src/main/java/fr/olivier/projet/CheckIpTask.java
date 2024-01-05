@@ -60,7 +60,7 @@ import jakarta.inject.Inject;
                     cmd = "ping -n 1 " + ip;
             } else {
                     // For Linux and OSX
-                    cmd = "ping -c 1 " + ip;
+                    cmd = "ping -c 2 " + ip;
             }
 
             Process myProcess = Runtime.getRuntime().exec(cmd);
