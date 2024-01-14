@@ -6,8 +6,10 @@ import java.util.List;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import fr.olivier.projet.bo.NmapBo;
 import fr.olivier.projet.mqtt.DomoticMqttService;
 import fr.olivier.projet.repository.IpRepository;
+import fr.olivier.projet.repository.PingRepository;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.scheduler.Scheduled.ConcurrentExecution;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,6 +28,9 @@ import jakarta.inject.Inject;
 
     @ConfigProperty(name = "ipMqtt.ping.mac")
     private List<String> listeMac;
+  
+    @Inject
+    private PingRepository pingRepository;
 
     @Inject
     private DomoticMqttService domoticMqttService;
@@ -35,14 +40,10 @@ import jakarta.inject.Inject;
         listeMac.stream().forEach(mac -> {
             ipRepository.find(mac).ifPresent(
                     nmapBo -> {
-                        LOG.info(" Ping " + nmapBo.getName() + " ip:" + nmapBo.getIp());
-                        boolean pingb = pingAdress(nmapBo.getIp());
-                        LOG.info(" test ping  " + pingb);
-
-                        if (pingb) {
-                            domoticMqttService.sendMessage(nmapBo, "on");
-                        } else {
-                            domoticMqttService.sendMessage(nmapBo, "false");
+                        try {
+                            pingProcess(nmapBo);
+                        } catch (InterruptedException e) {
+                            LOG.error(" Erreur sur le traitement du ping", e);
                         }
                     }
 
@@ -52,32 +53,25 @@ import jakarta.inject.Inject;
         
     }
 
-    private synchronized boolean pingAdress(String ip) {
-        try {
-            String cmd = "";
-            if(System.getProperty("os.name").startsWith("Windows")) {   
-                    // For Windows
-                    cmd = "ping -n 1 " + ip;
-            } else {
-                    // For Linux and OSX
-                    cmd = "ping -c 2 " + ip;
-            }
-
-            Process myProcess = Runtime.getRuntime().exec(cmd);
-            myProcess.waitFor();
-
-            if(myProcess.exitValue() == 0) {
-
-                    return true;
-            } else {
-
-                    return false;
-            }
-
-        } catch (Exception pExcept) {
-            LOG.warn("Erreur sur IP " + ip , pExcept);
-            return false;
+    private void pingProcess(NmapBo nmapBo) throws InterruptedException {
+        boolean pingb = pingRepository.pingAdress(nmapBo.getIp());
+        LOG.info(" test ping  " + nmapBo.getIp() + " "  + pingb);
+       
+       
+        if (pingb) {
+            domoticMqttService.sendMessage(nmapBo, "on");
+        } else if (nmapBo.isLastState() && !pingb) {
+        /*
+         * Cas d'un changement d etat vers false.
+         * Mise en place d'un nouvel appel pour confirmer le false.
+         */ 
+            LOG.info(" Confirmation du false au prochain appel " + nmapBo.getIp());
+        } else {
+            domoticMqttService.sendMessage(nmapBo, "false");
         }
+        nmapBo.setLastState(pingb);
     }
+
+  
     
  }

@@ -11,6 +11,8 @@ public class NmapBo {
 
     private String mac;
 
+    private boolean lastState = false;
+
     
 
     @Override
@@ -72,6 +74,14 @@ public class NmapBo {
 
     public String getMac() {
         return mac;
+    }
+
+    public boolean isLastState() {
+        return lastState;
+    }
+
+    public void setLastState(boolean lastState) {
+        this.lastState = lastState;
     }
 
     

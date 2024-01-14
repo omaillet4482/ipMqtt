@@ -3,10 +3,10 @@ quarkus:
   log:
     level: "INFO"
     category:
-      - "fr.olivier":
-        level: "DEBUG"
-      - "org.eclipse":
-        level: "INFO"
+      "fr.olivier":
+         level: "DEBUG"
+      "org.eclipse":
+         level: "INFO"
 
 ipMqtt:
   mqtt: 
@@ -15,5 +15,3 @@ ipMqtt:
   ping:
     mac:
       - "F2:22:45:FF:E3:27"
-      - "AC:72:89:A1:0F:31"
-      - "30:E1:71:F1:2F:0B"

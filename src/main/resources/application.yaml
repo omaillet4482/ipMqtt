@@ -4,4 +4,5 @@ ipMqtt:
     ligne3: "Address: (?<mac>[A-F0-9:]+)"
 
   ping:
-    delay: "60s"
+    cmd: "ping -c 2 "
+    delay: "10s"

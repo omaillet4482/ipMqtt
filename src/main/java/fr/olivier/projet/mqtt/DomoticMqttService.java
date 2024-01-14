@@ -33,6 +33,7 @@ public class DomoticMqttService {
         Mqtt5BlockingClient client = getClient();
 
         client.connect();
+        LOG.debug("send " + nmapBo.getName() + " value "+ value );
         client.publishWith().topic(topicCmd).qos(MqttQos.AT_LEAST_ONCE).payload(value.getBytes()).send();
         client.disconnect();
 
@@ -54,7 +55,7 @@ public class DomoticMqttService {
 
         Jsonb builder = JsonbBuilder.create();
         String json = builder.toJson(builderFromNmap(nmapBo));
-        LOG.info(json);
+        LOG.debug(json);
 
         Mqtt5BlockingClient client = getClient();
         client.connect();

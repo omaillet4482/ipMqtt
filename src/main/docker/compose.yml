@@ -3,9 +3,9 @@ services:
         image: quarkus/ipmqtt-legacy-jar
         container_name: ipmqtt
         volumes:
-          - /home/olivier/quarkus/ipMqtt/config:/work/config
+          - /home/olivier/quarkus/ipMqtt/config:/deployments/config
         ports:
-          - "6060:8080"
+          - "8080:8080"
  
 
 
